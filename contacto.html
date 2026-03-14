@@ -8,7 +8,391 @@
   <!-- Font: DM Sans, Google Fonts (Open Font License) -->
   <!-- Font: Rajdhani, Google Fonts (Open Font License) -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+/* Zafiro Technologies – Hoja de estilos principal */
+/* Fuentes: DM Sans y Rajdhani via Google Fonts (Open Font License) */
+
+/* === RESET & BASE === */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f2f5;
+    color: #1a2535;
+    min-height: 100vh;
+  }
+
+  /* === VARIABLES === */
+  :root {
+    --navy:    #0d1b2a;
+    --blue:    #1565c0;
+    --cyan:    #00b8d9;
+    --light:   #f0f2f5;
+    --white:   #ffffff;
+    --border:  #e2e6ec;
+    --muted:   #6b7a90;
+    --text:    #1a2535;
+    --card-sh: 0 2px 12px rgba(0,0,0,0.08);
+    --card-sh-hover: 0 8px 30px rgba(0,0,0,0.14);
+  }
+
+  /* === NAVBAR === */
+  .navbar {
+    background: var(--navy);
+    position: sticky; top: 0; z-index: 1000;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .navbar-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 68px; gap: 24px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+  .nav-brand img { height: 42px; width: auto; }
+  .nav-brand-text {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700;
+    color: #fff; letter-spacing: 0.5px; line-height: 1;
+  }
+  .nav-brand-text span { color: var(--cyan); }
+  .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+  .nav-links a {
+    display: block; padding: 8px 14px; border-radius: 6px;
+    color: rgba(255,255,255,0.75); text-decoration: none;
+    font-size: 0.9rem; font-weight: 500; transition: all .15s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.active { color: #fff; background: rgba(255,255,255,0.08); }
+  .nav-links a.active { color: var(--cyan); }
+  .nav-cta-btn {
+    background: var(--cyan); color: var(--navy) !important;
+    font-weight: 700 !important; border-radius: 6px;
+  }
+  .nav-cta-btn:hover { background: #00d4f5 !important; color: var(--navy) !important; }
+  .nav-contact { display: flex; align-items: center; gap: 16px; }
+  .nav-wa {
+    display: flex; align-items: center; gap: 7px;
+    color: #4ade80; font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; padding: 6px 12px;
+    border: 1px solid rgba(74,222,128,0.3); border-radius: 6px;
+    transition: all .15s;
+  }
+  .nav-wa:hover { background: rgba(74,222,128,0.08); border-color: #4ade80; }
+
+  /* === PAGE HERO BANNER === */
+  .page-banner {
+    background: var(--navy);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .page-banner h1 {
+    font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700;
+    color: #fff; margin-bottom: 6px;
+  }
+  .page-banner p { color: rgba(255,255,255,0.55); font-size: 0.92rem; }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    margin-top: 10px; font-size: 0.82rem; color: rgba(255,255,255,0.4);
+  }
+  .breadcrumb a { color: var(--cyan); text-decoration: none; }
+
+  /* === LAYOUT === */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+  .section { padding: 56px 0; }
+  .section-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700;
+    color: var(--text); margin-bottom: 4px;
+  }
+  .section-title span { color: var(--blue); }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
+
+  /* === PRODUCT CARD === */
+  .product-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+    box-shadow: var(--card-sh);
+    transition: transform .2s, box-shadow .2s;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: var(--card-sh-hover); }
+  .product-img {
+    width: 100%; aspect-ratio: 4/3;
+    background: #f8fafc;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .product-img svg { width: 64px; height: 64px; color: #c0ccd8; }
+  .product-info { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+  .product-cat {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--cyan); margin-bottom: 4px;
+  }
+  .product-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 8px; }
+  .product-price { font-size: 1.15rem; font-weight: 700; color: var(--blue); margin-top: auto; }
+  .product-actions { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .btn-consult {
+    width: 100%; padding: 10px; border: 1.5px solid var(--blue);
+    background: transparent; color: var(--blue);
+    border-radius: 7px; font-weight: 700; font-size: 0.88rem;
+    cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-consult:hover { background: var(--blue); color: #fff; }
+
+  /* === BUTTONS === */
+  .btn-primary {
+    display: inline-block; padding: 13px 28px;
+    background: var(--blue); color: #fff;
+    border-radius: 8px; font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary:hover { background: #1255a8; }
+  .btn-secondary {
+    display: inline-block; padding: 13px 28px;
+    background: transparent; color: var(--navy);
+    border: 1.5px solid var(--navy); border-radius: 8px;
+    font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; cursor: pointer; transition: all .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-secondary:hover { background: var(--navy); color: #fff; }
+
+  /* === FOOTER === */
+  footer {
+    background: var(--navy); color: rgba(255,255,255,0.6);
+    padding: 56px 24px 28px;
+    margin-top: auto;
+  }
+  .footer-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px; margin-bottom: 40px;
+  }
+  .footer-brand-text { font-size: 0.88rem; line-height: 1.7; margin: 14px 0 20px; }
+  .footer-col h4 {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem;
+    color: #fff; margin-bottom: 14px; letter-spacing: 0.5px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .footer-col ul a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.88rem; transition: color .15s; }
+  .footer-col ul a:hover { color: var(--cyan); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1280px; margin: 0 auto;
+    font-size: 0.82rem; flex-wrap: wrap; gap: 8px;
+  }
+
+  /* === WA FLOAT === */
+  .wa-float {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999; pointer-events: all;
+    width: 54px; height: 54px; border-radius: 50%;
+    background: #25D366; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.35); text-decoration: none;
+    transition: transform .2s;
+  }
+  .wa-float:hover { transform: scale(1.1); }
+  .wa-float svg { width: 28px; height: 28px; color: #fff; }
+
+  /* === CHIP / BADGE === */
+  .chip {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .chip-blue { background: rgba(21,101,192,0.1); color: var(--blue); }
+  .chip-cyan { background: rgba(0,184,217,0.1); color: var(--cyan); }
+  .chip-green { background: rgba(74,222,128,0.12); color: #16a34a; }
+
+  /* === GRID HELPERS === */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+  @media (max-width: 1100px) { .grid-4 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 860px) {
+    .grid-4, .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .navbar-inner { padding: 0 16px; }
+    .nav-contact { display: none; }
+  }
+  @media (max-width: 540px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+
+  
+  
+  
+  /* Mega panel */
+  .mega-panel {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--blue);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.13);
+    z-index: 950;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+  }
+  .mega-panel.open { display: flex; }
+
+  /* Left sidebar */
+  .mega-left {
+    width: 240px; flex-shrink: 0;
+    background: #f7f9fb;
+    border-right: 1px solid var(--border);
+    padding: 8px 0;
+  }
+  .mega-left-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 18px;
+    font-size: 0.88rem; font-weight: 600;
+    color: var(--text); cursor: pointer;
+    transition: background .12s, color .12s;
+    gap: 8px;
+  }
+  .mega-left-item:hover { background: #edf0f4; color: var(--blue); }
+  .mega-left-item.mega-left-active {
+    background: var(--white);
+    color: var(--blue);
+    border-left: 3px solid var(--blue);
+    padding-left: 15px;
+  }
+
+  /* Right content */
+  .mega-right {
+    flex: 1; padding: 24px 28px; min-height: 240px;
+    position: relative;
+  }
+  .mega-right-panel { display: none; }
+  .mega-right-panel.mega-right-visible { display: block; }
+  .mega-right-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mega-right-header span {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+    font-weight: 700; color: var(--text);
+  }
+  .mega-see-all {
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--blue); text-decoration: none;
+  }
+  .mega-see-all:hover { text-decoration: underline; }
+  .mega-subs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 4px 16px;
+  }
+  .mega-sub-link {
+    display: block; padding: 8px 10px;
+    font-size: 0.88rem; color: var(--text);
+    text-decoration: none; border-radius: 6px;
+    transition: background .12s, color .12s;
+  }
+  .mega-sub-link:hover { background: #f0f2f5; color: var(--blue); }
+
+  /* Overlay behind mega */
+  .mega-overlay {
+    display: none; position: fixed;
+    inset: 0; z-index: 890; background: rgba(0,0,0,0.25);
+  }
+  .mega-overlay.open { display: block; }
+
+  
+  /* ── CATEGORY BAR ── */
+  .cat-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 68px; z-index: 900;
+  }
+  .cat-bar-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .cat-bar-inner::-webkit-scrollbar { display: none; }
+
+  .cat-tab {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center;
+    padding: 13px 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem; font-weight: 600;
+    color: var(--text); white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s; flex-shrink: 0;
+  }
+  .cat-tab:hover { color: var(--blue); }
+  .cat-tab.active {
+    color: var(--blue); border-bottom-color: var(--blue);
+  }
+  .cat-tab.active svg { transform: rotate(180deg); }
+
+  /* ── DROPDOWN PANEL ── */
+  .cat-overlay {
+    display: none; position: fixed;
+    inset: 0; z-index: 800;
+    background: rgba(0,0,0,0.22);
+  }
+  .cat-overlay.open { display: block; }
+
+  .cat-drop {
+    display: none;
+    position: fixed;
+    left: 0; right: 0;
+    z-index: 850;
+    background: var(--white);
+    border-top: 2px solid var(--blue);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+    animation: dropIn .18s ease;
+  }
+  .cat-drop.open { display: block; }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cat-drop-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 24px 24px 28px;
+  }
+  .drop-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .drop-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.05rem;
+    font-weight: 700; color: var(--text);
+  }
+  .drop-see-all {
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--blue); text-decoration: none;
+  }
+  .drop-see-all:hover { text-decoration: underline; }
+
+  .drop-grid {
+    display: flex; flex-wrap: wrap; gap: 6px 12px;
+  }
+  .drop-sub {
+    padding: 7px 14px;
+    border: 1px solid var(--border); border-radius: 20px;
+    font-size: 0.86rem; font-weight: 500;
+    color: var(--text); text-decoration: none;
+    background: #f7f9fb;
+    transition: background .12s, color .12s, border-color .12s;
+    white-space: nowrap;
+  }
+  .drop-sub:hover {
+    background: var(--blue); color: #fff; border-color: var(--blue);
+  }
+</style>
 </head>
 <body>
 
@@ -21,114 +405,109 @@
     <ul class="nav-links"><li><a href="index.html" class="">Inicio</a></li><li><a href="tienda.html" class="">Tienda</a></li><li><a href="nosotros.html" class="">Nosotros</a></li><li><a href="contacto.html" class="active">Contacto</a></li></ul>
   </div>
 </nav>
-<nav class="cat-bar"><div class="cat-bar-inner">
-    <div class="cat-item">
-      <a href="tienda.html">Computadoras y Consolas <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Computadoras y Consolas</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">PC Gaming</a>
-<a href="tienda.html">Laptop</a>
-<a href="tienda.html">MiniPC</a>
-<a href="tienda.html">All-In-One</a>
-<a href="tienda.html">Consolas</a>
-<a href="tienda.html">Consolas Portátiles</a>
-      </div>
+<div id="cat-overlay" class="cat-overlay"></div>
+<nav class="cat-bar" id="cat-bar">
+  <div class="cat-bar-inner">
+    <button class="cat-tab" data-idx="0" id="tab-computadoras-y-consolas" onclick="toggleDrop(0, this)">Computadoras y Consolas<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="1" id="tab-componentes" onclick="toggleDrop(1, this)">Componentes<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="2" id="tab-perifericos-y-accesorios" onclick="toggleDrop(2, this)">Periféricos y Accesorios<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="3" id="tab-monitores-y-pantallas" onclick="toggleDrop(3, this)">Monitores y Pantallas<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="4" id="tab-celulares-y-tablets" onclick="toggleDrop(4, this)">Celulares y Tablets<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="5" id="tab-redes-y-domotica" onclick="toggleDrop(5, this)">Redes y Domótica<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="6" id="tab-hogar" onclick="toggleDrop(6, this)">Hogar<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="7" id="tab-suministros" onclick="toggleDrop(7, this)">Suministros<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    
+  </div>
+</nav>
+
+<div class="cat-drop" id="drop-0">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Computadoras y Consolas</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Componentes <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Componentes</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Procesadores</a>
-<a href="tienda.html">Tarjetas de Video</a>
-<a href="tienda.html">Memorias RAM</a>
-<a href="tienda.html">Tarjetas Madre</a>
-<a href="tienda.html">Almacenamiento</a>
-<a href="tienda.html">Fuentes de Poder</a>
-<a href="tienda.html">Enfriamiento</a>
-<a href="tienda.html">Gabinetes</a>
-      </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">PC Gaming</a><a href="tienda.html" class="drop-sub">Laptop</a><a href="tienda.html" class="drop-sub">MiniPC</a><a href="tienda.html" class="drop-sub">All-In-One</a><a href="tienda.html" class="drop-sub">Consolas</a><a href="tienda.html" class="drop-sub">Consolas Portátiles</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Periféricos y Accesorios <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Periféricos y Accesorios</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Teclados</a>
-<a href="tienda.html">Mouse</a>
-<a href="tienda.html">Headset</a>
-<a href="tienda.html">Mousepad</a>
-<a href="tienda.html">Cámaras Web</a>
-<a href="tienda.html">Micrófonos</a>
-<a href="tienda.html">Parlantes</a>
-<a href="tienda.html">Controles</a>
-<a href="tienda.html">Impresoras</a>
-<a href="tienda.html">Sillas</a>
-<a href="tienda.html">Iluminación</a>
-<a href="tienda.html">Tablets de Dibujo</a>
-<a href="tienda.html">Reguladores de Voltaje y UPS</a>
-<a href="tienda.html">Regletas</a>
-      </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-1">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Componentes</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Monitores y Pantallas <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Monitores y Pantallas</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Monitores</a>
-<a href="tienda.html">Pantallas</a>
-<a href="tienda.html">Bases y Soportes</a>
-      </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Procesadores</a><a href="tienda.html" class="drop-sub">Tarjetas de Video</a><a href="tienda.html" class="drop-sub">Memorias RAM</a><a href="tienda.html" class="drop-sub">Tarjetas Madre</a><a href="tienda.html" class="drop-sub">Almacenamiento</a><a href="tienda.html" class="drop-sub">Fuentes de Poder</a><a href="tienda.html" class="drop-sub">Enfriamiento</a><a href="tienda.html" class="drop-sub">Gabinetes</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Celulares y Tablets <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Celulares y Tablets</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Celulares</a>
-<a href="tienda.html">Tablets</a>
-<a href="tienda.html">Cargadores</a>
-<a href="tienda.html">Accesorios</a>
-<a href="tienda.html">Relojes</a>
-      </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-2">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Periféricos y Accesorios</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Redes y Domótica <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Redes y Domótica</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Routers</a>
-<a href="tienda.html">Switches</a>
-<a href="tienda.html">Amplificadores</a>
-<a href="tienda.html">Smart Home</a>
-<a href="tienda.html">Cámaras de Vigilancia</a>
-<a href="tienda.html">Herramientas e Implementos</a>
-      </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Teclados</a><a href="tienda.html" class="drop-sub">Mouse</a><a href="tienda.html" class="drop-sub">Headset</a><a href="tienda.html" class="drop-sub">Mousepad</a><a href="tienda.html" class="drop-sub">Cámaras Web</a><a href="tienda.html" class="drop-sub">Micrófonos</a><a href="tienda.html" class="drop-sub">Parlantes</a><a href="tienda.html" class="drop-sub">Controles</a><a href="tienda.html" class="drop-sub">Impresoras</a><a href="tienda.html" class="drop-sub">Sillas</a><a href="tienda.html" class="drop-sub">Iluminación</a><a href="tienda.html" class="drop-sub">Tablets de Dibujo</a><a href="tienda.html" class="drop-sub">Reguladores de Voltaje y UPS</a><a href="tienda.html" class="drop-sub">Regletas</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Hogar <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Hogar</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Línea Blanca</a>
-<a href="tienda.html">Cocina</a>
-<a href="tienda.html">Electrodomésticos</a>
-<a href="tienda.html">Climatización</a>
-<a href="tienda.html">Muebles</a>
-      </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-3">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Monitores y Pantallas</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
     </div>
-    <div class="cat-item">
-      <a href="tienda.html">Suministros <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l4 4 4-4"/></svg></a>
-      <div class="dropdown">
-        <a href="tienda.html" style="font-weight:700;color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;padding:10px 20px 6px;cursor:default;" onclick="return false;">Todo en Suministros</a>
-        <div class="dropdown-divider"></div>
-        <a href="tienda.html">Tintas</a>
-<a href="tienda.html">Cintas</a>
-<a href="tienda.html">Resmas</a>
-<a href="tienda.html">Papel Térmico</a>
-      </div>
-    </div></div></nav>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Monitores</a><a href="tienda.html" class="drop-sub">Pantallas</a><a href="tienda.html" class="drop-sub">Bases y Soportes</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-4">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Celulares y Tablets</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Celulares</a><a href="tienda.html" class="drop-sub">Tablets</a><a href="tienda.html" class="drop-sub">Cargadores</a><a href="tienda.html" class="drop-sub">Accesorios</a><a href="tienda.html" class="drop-sub">Relojes</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-5">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Redes y Domótica</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Routers</a><a href="tienda.html" class="drop-sub">Switches</a><a href="tienda.html" class="drop-sub">Amplificadores</a><a href="tienda.html" class="drop-sub">Smart Home</a><a href="tienda.html" class="drop-sub">Cámaras de Vigilancia</a><a href="tienda.html" class="drop-sub">Herramientas e Implementos</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-6">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Hogar</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Línea Blanca</a><a href="tienda.html" class="drop-sub">Cocina</a><a href="tienda.html" class="drop-sub">Electrodomésticos</a><a href="tienda.html" class="drop-sub">Climatización</a><a href="tienda.html" class="drop-sub">Muebles</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-7">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Suministros</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Tintas</a><a href="tienda.html" class="drop-sub">Cintas</a><a href="tienda.html" class="drop-sub">Resmas</a><a href="tienda.html" class="drop-sub">Papel Térmico</a>
+    </div>
+  </div>
+</div>
 
 <div style="background:var(--navy);padding:28px 24px;border-bottom:3px solid var(--cyan);">
   <div class="container">
@@ -145,7 +524,7 @@
         ¿Tenés alguna consulta sobre un producto? ¿Querés verificar disponibilidad o precio? Escribinos y te respondemos a la brevedad.
       </p>
       <div style="display:flex;flex-direction:column;gap:20px;">
-        <div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">WhatsApp</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);">+506 8615-8400</div></div></div><div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">Correo</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);">info@zafirotech.co.cr</div></div></div><div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">Horario</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);">Lun – Sáb · 8:00am – 6:00pm</div></div></div>
+        <div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">WhatsApp</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);">+506 8615-8400</div></div></div><div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">Correo</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7811161e173802191e110a170c1d1b10561b17561b0a">[email&#160;protected]</a></div></div></div><div style="display:flex;align-items:center;gap:16px;"><div style="width:46px;height:46px;border-radius:10px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg></div><div><div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;">Horario</div><div style="font-weight:600;font-size:0.95rem;color:var(--text);">Lun – Sáb · 8:00am – 6:00pm</div></div></div>
       </div>
       <div style="margin-top:32px;padding:20px;background:rgba(0,184,217,0.06);border:1px solid rgba(0,184,217,0.2);border-radius:10px;">
         <p style="font-size:0.88rem;color:var(--text);font-weight:600;margin-bottom:6px;">Respuesta rápida por WhatsApp</p>
@@ -157,16 +536,18 @@
     </div>
     <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:32px;">
       <h3 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:24px;color:var(--text);">Enviar Mensaje</h3>
-      <div style="display:flex;flex-direction:column;gap:18px;">
+      <form action="https://formspree.io/f/xvzwqdok" method="POST" style="display:flex;flex-direction:column;gap:18px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Nombre</label><input type="text" placeholder="Tu nombre" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
-          <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Teléfono</label><input type="text" placeholder="8xxx-xxxx" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
+          <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Nombre</label><input type="text" placeholder="Tu nombre" name="nombre" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
+          <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Teléfono</label><input type="text" placeholder="8xxx-xxxx" name="telefono" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
         </div>
-        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Correo Electrónico</label><input type="email" placeholder="tu@correo.com" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
-        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Tipo de Consulta</label><select style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;background:var(--white);"><option value="">Seleccionar...</option><option>Disponibilidad de producto</option><option>Precio y cotización</option><option>Garantía</option><option>Envíos</option><option>Otro</option></select></div>
-        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Mensaje</label><textarea placeholder="¿En qué te podemos ayudar?" rows="4" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;resize:vertical;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'"></textarea></div>
-        <button class="btn-primary" style="width:100%;padding:13px;">Enviar Mensaje</button>
-      </div>
+        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Correo Electrónico</label><input type="email" placeholder="tu@correo.com" name="email" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'" /></div>
+        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Tipo de Consulta</label><select name="tipo_consulta" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;background:var(--white);"><option value="">Seleccionar...</option><option>Disponibilidad de producto</option><option>Precio y cotización</option><option>Garantía</option><option>Envíos</option><option>Otro</option></select></div>
+        <div><label style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px;">Mensaje</label><textarea name="mensaje" placeholder="¿En qué te podemos ayudar?" rows="4" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;resize:vertical;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'"></textarea></div>
+        <input type="hidden" name="_subject" value="Nueva consulta – Zafiro Technologies" />
+        <input type="hidden" name="_replyto" value="" />
+        <button type="submit" class="btn-primary" style="width:100%;padding:13px;">Enviar Mensaje</button>
+      </form>
     </div>
   </div>
 </section>
@@ -184,7 +565,7 @@
       <div style="display:flex;gap:8px;">
         <a href="https://wa.me/50686158400" class="footer-col" style="color:#4ade80;font-size:0.85rem;text-decoration:none;">WhatsApp</a>
         <span style="color:rgba(255,255,255,0.2);">·</span>
-        <a href="mailto:info@zafirotech.co.cr" class="footer-col" style="color:rgba(255,255,255,0.5);font-size:0.85rem;text-decoration:none;">info@zafirotech.co.cr</a>
+        <a href="/cdn-cgi/l/email-protection#7e171018113e041f18170c110a1b1d16501d11501d0c" class="footer-col" style="color:rgba(255,255,255,0.5);font-size:0.85rem;text-decoration:none;"><span class="__cf_email__" data-cfemail="5d34333b321d273c3b342f3229383e35733e32733e2f">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="footer-col">
@@ -209,7 +590,7 @@
     <div class="footer-col">
       <h4>Contacto</h4>
       <ul>
-        <li><a href="mailto:info@zafirotech.co.cr">info@zafirotech.co.cr</a></li>
+        <li><a href="/cdn-cgi/l/email-protection#4b22252d240b312a2d2239243f2e2823652824652839"><span class="__cf_email__" data-cfemail="442d2a222b043e25222d362b3021272c6a272b6a2736">[email&#160;protected]</span></a></li>
         <li><a href="https://wa.me/50686158400">+506 8615-8400</a></li>
         <li><a href="contacto.html">Formulario de contacto</a></li>
       </ul>
@@ -217,7 +598,7 @@
   </div>
   <div class="footer-bottom">
     <span>© 2025 Zafiro Technologies. Todos los derechos reservados.</span>
-    <span>info@zafirotech.co.cr</span>
+    <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c15121a133c061d1a150e1308191f14521f13521f0e">[email&#160;protected]</a></span>
   </div>
 </footer>
 <a href="https://wa.me/50686158400" class="wa-float" target="_blank" rel="noopener" title="Escribinos por WhatsApp">
@@ -230,7 +611,7 @@
 
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   var _catActiveIdx = null;
 
   function toggleDrop(idx, btn) {
@@ -256,21 +637,4 @@
       document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
       _catActiveIdx = null;
     }
-    document.getElementById('cat-overlay').classList.remove('open');
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('cat-overlay').addEventListener('click', _closeCat);
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') _closeCat(); });
-    document.addEventListener('scroll', function() {
-      if (_catActiveIdx !== null) {
-        var bar = document.getElementById('cat-bar');
-        document.getElementById('drop-' + _catActiveIdx).style.top =
-          bar.getBoundingClientRect().bottom + 'px';
-      }
-    }, { passive: true });
-  });
-</script>
-
-</body>
-</html>
+    docume
