@@ -9,6 +9,359 @@
   <!-- Font: Rajdhani, Google Fonts (Open Font License) -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+<style>
+  /* ── TIENDA ── */
+  .tienda-layout {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: 260px 1fr;
+    gap: 28px; padding: 32px 24px 64px; align-items: start;
+  }
+
+  /* Sidebar */
+  .t-sidebar { position: sticky; top: 120px; max-height: calc(100vh - 140px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; padding-right: 4px; }
+  .filter-box {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .filter-box-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .filter-box-head h4 {
+    font-family: 'Rajdhani', sans-serif; font-size: 0.95rem;
+    font-weight: 700; color: var(--text); margin: 0;
+  }
+  .filter-box-head svg { color: var(--muted); transition: transform .2s; }
+  .filter-box-head.collapsed svg { transform: rotate(-90deg); }
+  .filter-box-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
+  .filter-box-body.collapsed { display: none; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px;
+    transition: border-color .15s;
+  }
+  .search-box:focus-within { border-color: var(--blue); }
+  .search-box input {
+    border: none; outline: none; flex: 1;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text);
+    background: transparent;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  .filter-check {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.85rem; color: var(--text); cursor: pointer;
+    padding: 3px 0;
+  }
+  .filter-check input[type=checkbox] {
+    width: 15px; height: 15px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0;
+  }
+  .filter-check span { line-height: 1.3; }
+
+  /* Price range */
+  .price-range-vals {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--muted); margin-bottom: 10px;
+  }
+  .price-range-vals span { font-weight: 600; color: var(--blue); }
+  input[type=range] {
+    width: 100%; accent-color: var(--blue); cursor: pointer;
+  }
+
+  /* Clear filters */
+  .clear-filters-btn {
+    width: 100%; padding: 9px; border-radius: 7px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all .15s; display: none;
+  }
+  .clear-filters-btn.visible { display: block; }
+  .clear-filters-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* Main area */
+  .t-main { min-width: 0; }
+  .t-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+  }
+  .t-results { font-size: 0.88rem; color: var(--muted); }
+  .t-results strong { color: var(--text); }
+  .t-sort {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    color: var(--text); background: var(--white); outline: none; cursor: pointer;
+  }
+
+  /* Active filters chips */
+  .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .af-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; background: rgba(21,101,192,0.08);
+    border: 1px solid rgba(21,101,192,0.2); border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600; color: var(--blue); cursor: pointer;
+    transition: background .12s;
+  }
+  .af-chip:hover { background: rgba(21,101,192,0.15); }
+
+  /* Product grid */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+  }
+  .product-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+    box-shadow: var(--card-sh);
+    transition: transform .2s, box-shadow .2s;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: var(--card-sh-hover); }
+  .product-img {
+    width: 100%; aspect-ratio: 4/3;
+    background: #f8fafc; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .product-img svg { width: 56px; height: 56px; color: #c8d4e0; }
+  .product-info { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+  .product-cat {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--cyan); margin-bottom: 4px;
+  }
+  .product-brand { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .product-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 8px; line-height: 1.35; }
+  .product-price { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin-top: auto; }
+  .product-avail {
+    font-size: 0.72rem; font-weight: 600; margin-top: 4px;
+  }
+  .avail-yes { color: #16a34a; }
+  .avail-no  { color: #dc2626; }
+  .product-actions { padding: 10px 14px; border-top: 1px solid var(--border); }
+  .btn-consult {
+    width: 100%; padding: 9px; border: 1.5px solid var(--blue);
+    background: transparent; color: var(--blue);
+    border-radius: 7px; font-weight: 700; font-size: 0.83rem;
+    cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-consult:hover { background: var(--blue); color: #fff; }
+
+  /* No results */
+  .no-results {
+    grid-column: 1 / -1; text-align: center; padding: 60px 20px;
+    color: var(--muted);
+  }
+  .no-results svg { width: 48px; height: 48px; margin-bottom: 14px; color: #c8d4e0; }
+  .no-results p { font-size: 0.95rem; }
+
+  /* Page banner */
+  .page-banner { background: var(--navy); padding: 28px 24px; border-bottom: 3px solid var(--cyan); }
+  .page-banner .container { max-width: 1280px; margin: 0 auto; }
+
+  @media (max-width: 860px) {
+    .tienda-layout { grid-template-columns: 1fr; }
+    .t-sidebar { position: static; }
+  }
+
+  /* ── VIEW TOGGLE ── */
+  .view-toggle { display: flex; gap: 4px; }
+  .view-btn {
+    width: 34px; height: 34px; border-radius: 6px;
+    background: transparent; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); transition: all .15s;
+  }
+  .view-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .view-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .view-btn svg { width: 16px; height: 16px; }
+
+  /* Per-page selector */
+  .perpage-select {
+    padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.83rem;
+    color: var(--text); background: var(--white); outline: none; cursor: pointer;
+  }
+
+  /* LIST VIEW */
+  .products-grid.list-view {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .products-grid.list-view .product-card {
+    flex-direction: row; align-items: center;
+  }
+  .products-grid.list-view .product-img {
+    width: 120px; min-width: 120px; aspect-ratio: 1;
+    border-bottom: none; border-right: 1px solid var(--border);
+  }
+  .products-grid.list-view .product-img svg { width: 36px; height: 36px; }
+  .products-grid.list-view .product-info {
+    flex: 1; padding: 12px 16px; flex-direction: row;
+    align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .products-grid.list-view .product-name { margin-bottom: 0; flex: 1; min-width: 160px; }
+  .products-grid.list-view .product-cat { margin-bottom: 0; }
+  .products-grid.list-view .product-brand { margin-bottom: 0; }
+  .products-grid.list-view .product-price { margin-top: 0; white-space: nowrap; }
+  .products-grid.list-view .product-avail { margin-top: 0; white-space: nowrap; }
+  .products-grid.list-view .product-actions {
+    padding: 12px 14px 12px 0; border-top: none;
+    border-left: 1px solid var(--border); min-width: 130px;
+  }
+
+  
+  /* ── CART NAV BTN ── */
+  .cart-nav-btn {
+    position: relative; background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.8); display: flex; align-items: center;
+    padding: 6px 8px; border-radius: 8px; transition: all .15s;
+    margin-left: 8px;
+  }
+  .cart-nav-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .cart-badge {
+    position: absolute; top: 0; right: 0;
+    background: var(--cyan); color: var(--navy);
+    font-size: 0.65rem; font-weight: 700;
+    width: 17px; height: 17px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--navy);
+  }
+
+  /* ── CART OVERLAY ── */
+  .cart-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 1400;
+    backdrop-filter: blur(2px);
+  }
+  .cart-overlay.open { display: block; }
+
+  /* ── CART DRAWER ── */
+  .cart-drawer {
+    position: fixed; top: 0; right: -420px; bottom: 0;
+    width: 400px; max-width: 95vw;
+    background: var(--white); z-index: 1500;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column;
+    transition: right .3s cubic-bezier(.4,0,.2,1);
+  }
+  .cart-drawer.open { right: 0; }
+
+  .cart-drawer-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 22px 20px 18px;
+    background: var(--navy);
+    border-bottom: 2px solid var(--cyan);
+    flex-shrink: 0;
+  }
+  .cart-close-btn {
+    background: rgba(255,255,255,0.08); border: none; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7); transition: all .15s; flex-shrink: 0;
+  }
+  .cart-close-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+  /* Cart items list */
+  .cart-items {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .cart-empty {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    padding: 40px 20px; color: var(--muted); text-align: center;
+  }
+  .cart-empty p { font-size: 0.9rem; }
+
+  .cart-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--light); border: 1px solid var(--border);
+    border-radius: 9px; padding: 12px;
+  }
+  .cart-item-img {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    color: #c8d4e0;
+  }
+  .cart-item-img svg { width: 24px; height: 24px; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-name {
+    font-size: 0.85rem; font-weight: 700; color: var(--text);
+    line-height: 1.3; margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cart-item-brand { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+  .cart-item-price { font-size: 0.88rem; font-weight: 700; color: var(--blue); }
+  .cart-item-controls {
+    display: flex; align-items: center; gap: 6px; margin-top: 8px;
+  }
+  .qty-btn {
+    width: 26px; height: 26px; border-radius: 5px;
+    border: 1px solid var(--border); background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text); transition: all .12s;
+  }
+  .qty-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .qty-display {
+    font-size: 0.88rem; font-weight: 700; color: var(--text);
+    min-width: 22px; text-align: center;
+  }
+  .cart-item-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 4px; border-radius: 5px;
+    transition: color .12s; display: flex; align-items: center;
+    margin-left: auto; flex-shrink: 0;
+  }
+  .cart-item-remove:hover { color: #dc2626; }
+
+  /* Cart footer */
+  .cart-footer {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0; background: var(--white);
+  }
+  .cart-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+    font-size: 0.88rem; color: var(--muted);
+  }
+  .cart-total {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.4rem;
+    font-weight: 700; color: var(--text);
+  }
+  .cart-wa-btn {
+    width: 100%; padding: 13px; border-radius: 8px; border: none;
+    background: #25D366; color: #fff; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity .15s; margin-bottom: 8px;
+  }
+  .cart-wa-btn:hover { opacity: 0.88; }
+  .cart-clear-btn {
+    width: 100%; padding: 9px; border-radius: 7px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all .15s;
+  }
+  .cart-clear-btn:hover { border-color: #dc2626; color: #dc2626; }
+
+  /* Add to cart button */
+  .btn-add-cart {
+    width: 100%; padding: 9px; border: none;
+    background: var(--blue); color: #fff;
+    border-radius: 7px; font-weight: 700; font-size: 0.83rem;
+    cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-add-cart:hover { background: #1255a8; }
+  .btn-add-cart.added { background: #16a34a; }
+
+  </style>
 </head>
 <body>
 
@@ -19,172 +372,306 @@
       <div class="nav-brand-text">ZAFIRO <span>TECHNOLOGIES</span></div>
     </a>
     <ul class="nav-links"><li><a href="index.html" class="">Inicio</a></li><li><a href="tienda.html" class="active">Tienda</a></li><li><a href="nosotros.html" class="">Nosotros</a></li><li><a href="contacto.html" class="">Contacto</a></li></ul>
+    <button class="cart-nav-btn" onclick="toggleCart()" title="Carrito de compras">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+      <span class="cart-badge" id="cart-badge" style="display:none;">0</span>
+    </button>
   </div>
 </nav>
 
-<div style="background:var(--navy);padding:28px 24px;border-bottom:3px solid var(--cyan);">
+<!-- Cart overlay -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+<!-- Cart drawer -->
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-drawer-head">
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--cyan);margin-bottom:3px;">Tu pedido</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;">Carrito de Compras</div>
+    </div>
+    <button class="cart-close-btn" onclick="toggleCart()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px;"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none;">
+    <div class="cart-total-row">
+      <span>Total estimado</span>
+      <span class="cart-total" id="cart-total">₡0</span>
+    </div>
+    <p style="font-size:0.75rem;color:var(--muted);margin-bottom:14px;">* Los precios son referenciales. Se confirmarán al procesar el pedido.</p>
+    <button class="cart-wa-btn" id="cart-wa-btn" onclick="checkoutWhatsApp()">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Confirmar pedido por WhatsApp
+    </button>
+    <button class="cart-clear-btn" onclick="clearCart()">Vaciar carrito</button>
+  </div>
+</div>
+
+<div id="cat-overlay" class="cat-overlay"></div>
+<nav class="cat-bar" id="cat-bar">
+  <div class="cat-bar-inner">
+    <button class="cat-tab" data-idx="0" id="tab-computadoras-y-consolas" onclick="toggleDrop(0, this)">Computadoras y Consolas<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="1" id="tab-componentes" onclick="toggleDrop(1, this)">Componentes<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="2" id="tab-perifericos-y-accesorios" onclick="toggleDrop(2, this)">Periféricos y Accesorios<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="3" id="tab-monitores-y-pantallas" onclick="toggleDrop(3, this)">Monitores y Pantallas<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="4" id="tab-celulares-y-tablets" onclick="toggleDrop(4, this)">Celulares y Tablets<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="5" id="tab-redes-y-domotica" onclick="toggleDrop(5, this)">Redes y Domótica<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="6" id="tab-hogar" onclick="toggleDrop(6, this)">Hogar<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    <button class="cat-tab" data-idx="7" id="tab-suministros" onclick="toggleDrop(7, this)">Suministros<svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:9px;height:9px;margin-left:4px;flex-shrink:0;transition:transform .2s;"><path d="M1 1l4 4 4-4"/></svg></button>
+    
+  </div>
+</nav>
+
+<div class="cat-drop" id="drop-0">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Computadoras y Consolas</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">PC Gaming</a><a href="tienda.html" class="drop-sub">Laptop</a><a href="tienda.html" class="drop-sub">MiniPC</a><a href="tienda.html" class="drop-sub">All-In-One</a><a href="tienda.html" class="drop-sub">Consolas</a><a href="tienda.html" class="drop-sub">Consolas Portátiles</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-1">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Componentes</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Procesadores</a><a href="tienda.html" class="drop-sub">Tarjetas de Video</a><a href="tienda.html" class="drop-sub">Memorias RAM</a><a href="tienda.html" class="drop-sub">Tarjetas Madre</a><a href="tienda.html" class="drop-sub">Almacenamiento</a><a href="tienda.html" class="drop-sub">Fuentes de Poder</a><a href="tienda.html" class="drop-sub">Enfriamiento</a><a href="tienda.html" class="drop-sub">Gabinetes</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-2">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Periféricos y Accesorios</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Teclados</a><a href="tienda.html" class="drop-sub">Mouse</a><a href="tienda.html" class="drop-sub">Headset</a><a href="tienda.html" class="drop-sub">Mousepad</a><a href="tienda.html" class="drop-sub">Cámaras Web</a><a href="tienda.html" class="drop-sub">Micrófonos</a><a href="tienda.html" class="drop-sub">Parlantes</a><a href="tienda.html" class="drop-sub">Controles</a><a href="tienda.html" class="drop-sub">Impresoras</a><a href="tienda.html" class="drop-sub">Sillas</a><a href="tienda.html" class="drop-sub">Iluminación</a><a href="tienda.html" class="drop-sub">Tablets de Dibujo</a><a href="tienda.html" class="drop-sub">Reguladores de Voltaje y UPS</a><a href="tienda.html" class="drop-sub">Regletas</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-3">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Monitores y Pantallas</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Monitores</a><a href="tienda.html" class="drop-sub">Pantallas</a><a href="tienda.html" class="drop-sub">Bases y Soportes</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-4">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Celulares y Tablets</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Celulares</a><a href="tienda.html" class="drop-sub">Tablets</a><a href="tienda.html" class="drop-sub">Cargadores</a><a href="tienda.html" class="drop-sub">Accesorios</a><a href="tienda.html" class="drop-sub">Relojes</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-5">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Redes y Domótica</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Routers</a><a href="tienda.html" class="drop-sub">Switches</a><a href="tienda.html" class="drop-sub">Amplificadores</a><a href="tienda.html" class="drop-sub">Smart Home</a><a href="tienda.html" class="drop-sub">Cámaras de Vigilancia</a><a href="tienda.html" class="drop-sub">Herramientas e Implementos</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-6">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Hogar</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Línea Blanca</a><a href="tienda.html" class="drop-sub">Cocina</a><a href="tienda.html" class="drop-sub">Electrodomésticos</a><a href="tienda.html" class="drop-sub">Climatización</a><a href="tienda.html" class="drop-sub">Muebles</a>
+    </div>
+  </div>
+</div>
+<div class="cat-drop" id="drop-7">
+  <div class="cat-drop-inner">
+    <div class="drop-header">
+      <span class="drop-title">Suministros</span>
+      <a href="tienda.html" class="drop-see-all">Ver todo →</a>
+    </div>
+    <div class="drop-grid">
+      <a href="tienda.html" class="drop-sub">Tintas</a><a href="tienda.html" class="drop-sub">Cintas</a><a href="tienda.html" class="drop-sub">Resmas</a><a href="tienda.html" class="drop-sub">Papel Térmico</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- Page banner -->
+<div class="page-banner">
   <div class="container">
     <div class="breadcrumb"><a href="index.html">Inicio</a> <span>/</span> <span>Tienda</span></div>
     <h1 style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;margin-top:8px;">Tienda</h1>
   </div>
 </div>
 
-<section class="section">
-  <div class="container" style="display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start;">
-    <!-- Sidebar -->
-    <aside style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;position:sticky;top:88px;">
-      <h3 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">Categorías</h3>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:1px;max-height:70vh;overflow-y:auto;" id="cat-list">
-<li style="padding:6px 10px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:4px;">Todas las categorías</li><li><a href="#" class="cat-link" data-cat="all" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;color:var(--text);text-decoration:none;font-size:0.88rem;font-weight:500;transition:all .15s;">Todos <span style="background:#f0f2f5;padding:2px 8px;border-radius:10px;font-size:0.75rem;color:var(--muted);">—</span></a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Computadoras y Consolas</li><li><a href="#" class="cat-link" data-cat="PC Gaming" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">PC Gaming</a></li><li><a href="#" class="cat-link" data-cat="Laptop" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Laptop</a></li><li><a href="#" class="cat-link" data-cat="MiniPC" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">MiniPC</a></li><li><a href="#" class="cat-link" data-cat="All-In-One" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">All-In-One</a></li><li><a href="#" class="cat-link" data-cat="Consolas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Consolas</a></li><li><a href="#" class="cat-link" data-cat="Consolas Portátiles" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Consolas Portátiles</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Componentes</li><li><a href="#" class="cat-link" data-cat="Procesadores" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Procesadores</a></li><li><a href="#" class="cat-link" data-cat="Tarjetas de Video" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Tarjetas de Video</a></li><li><a href="#" class="cat-link" data-cat="Memorias RAM" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Memorias RAM</a></li><li><a href="#" class="cat-link" data-cat="Tarjetas Madre" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Tarjetas Madre</a></li><li><a href="#" class="cat-link" data-cat="Almacenamiento" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Almacenamiento</a></li><li><a href="#" class="cat-link" data-cat="Fuentes de Poder" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Fuentes de Poder</a></li><li><a href="#" class="cat-link" data-cat="Enfriamiento" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Enfriamiento</a></li><li><a href="#" class="cat-link" data-cat="Gabinetes" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Gabinetes</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Periféricos y Accesorios</li><li><a href="#" class="cat-link" data-cat="Teclados" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Teclados</a></li><li><a href="#" class="cat-link" data-cat="Mouse" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Mouse</a></li><li><a href="#" class="cat-link" data-cat="Headset" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Headset</a></li><li><a href="#" class="cat-link" data-cat="Mousepad" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Mousepad</a></li><li><a href="#" class="cat-link" data-cat="Cámaras Web" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Cámaras Web</a></li><li><a href="#" class="cat-link" data-cat="Micrófonos" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Micrófonos</a></li><li><a href="#" class="cat-link" data-cat="Parlantes" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Parlantes</a></li><li><a href="#" class="cat-link" data-cat="Controles" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Controles</a></li><li><a href="#" class="cat-link" data-cat="Impresoras" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Impresoras</a></li><li><a href="#" class="cat-link" data-cat="Sillas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Sillas</a></li><li><a href="#" class="cat-link" data-cat="Iluminación" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Iluminación</a></li><li><a href="#" class="cat-link" data-cat="Tablets de Dibujo" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Tablets de Dibujo</a></li><li><a href="#" class="cat-link" data-cat="Reguladores de Voltaje y UPS" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Reguladores de Voltaje y UPS</a></li><li><a href="#" class="cat-link" data-cat="Regletas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Regletas</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Monitores y Pantallas</li><li><a href="#" class="cat-link" data-cat="Monitores" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Monitores</a></li><li><a href="#" class="cat-link" data-cat="Pantallas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Pantallas</a></li><li><a href="#" class="cat-link" data-cat="Bases y Soportes" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Bases y Soportes</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Celulares y Tablets</li><li><a href="#" class="cat-link" data-cat="Celulares" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Celulares</a></li><li><a href="#" class="cat-link" data-cat="Tablets" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Tablets</a></li><li><a href="#" class="cat-link" data-cat="Cargadores" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Cargadores</a></li><li><a href="#" class="cat-link" data-cat="Accesorios" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Accesorios</a></li><li><a href="#" class="cat-link" data-cat="Relojes" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Relojes</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Redes y Domótica</li><li><a href="#" class="cat-link" data-cat="Routers" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Routers</a></li><li><a href="#" class="cat-link" data-cat="Switches" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Switches</a></li><li><a href="#" class="cat-link" data-cat="Amplificadores" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Amplificadores</a></li><li><a href="#" class="cat-link" data-cat="Smart Home" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Smart Home</a></li><li><a href="#" class="cat-link" data-cat="Cámaras de Vigilancia" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Cámaras de Vigilancia</a></li><li><a href="#" class="cat-link" data-cat="Herramientas e Implementos" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Herramientas e Implementos</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Hogar</li><li><a href="#" class="cat-link" data-cat="Línea Blanca" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Línea Blanca</a></li><li><a href="#" class="cat-link" data-cat="Cocina" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Cocina</a></li><li><a href="#" class="cat-link" data-cat="Electrodomésticos" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Electrodomésticos</a></li><li><a href="#" class="cat-link" data-cat="Climatización" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Climatización</a></li><li><a href="#" class="cat-link" data-cat="Muebles" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Muebles</a></li><li style="padding:8px 10px 4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--blue);margin-top:6px;">Suministros</li><li><a href="#" class="cat-link" data-cat="Tintas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Tintas</a></li><li><a href="#" class="cat-link" data-cat="Cintas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Cintas</a></li><li><a href="#" class="cat-link" data-cat="Resmas" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Resmas</a></li><li><a href="#" class="cat-link" data-cat="Papel Térmico" style="display:block;padding:6px 10px 6px 18px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:0.83rem;transition:all .15s;">Papel Térmico</a></li>
-</ul>
-    </aside>
-    <!-- Products -->
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <span style="font-size:0.88rem;color:var(--muted);" id="results-count">Mostrando 12 productos</span>
-        <select style="border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:0.85rem;color:var(--text);background:var(--white);outline:none;font-family:'DM Sans',sans-serif;">
-          <option>Orden: Relevancia</option>
-          <option>Precio: menor a mayor</option>
-          <option>Precio: mayor a menor</option>
-        </select>
+<div style="background:var(--light); min-height: 70vh;">
+<div class="tienda-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="t-sidebar">
+
+    <!-- Search -->
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;color:var(--muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar productos, marcas..." />
+    </div>
+
+    <!-- Clear button -->
+    <button class="clear-filters-btn" id="clear-btn" onclick="clearAllFilters()">
+      Limpiar todos los filtros
+    </button>
+
+    <!-- Category filter -->
+    <div class="filter-box">
+      <div class="filter-box-head" onclick="toggleBox('cat-filter-body')">
+        <h4>Categoría</h4>
+        <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><path d="M1 1l4 4 4-4"/></svg>
       </div>
-      <div class="grid-3" id="products-grid">
+      <div class="filter-box-body" id="cat-filter-body">
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="All-In-One" onchange="applyFilters()"><span>All-In-One</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Almacenamiento" onchange="applyFilters()"><span>Almacenamiento</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Amplificadores" onchange="applyFilters()"><span>Amplificadores</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Bases y Soportes" onchange="applyFilters()"><span>Bases y Soportes</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Cargadores" onchange="applyFilters()"><span>Cargadores</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Celulares" onchange="applyFilters()"><span>Celulares</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Controles" onchange="applyFilters()"><span>Controles</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Cámaras Web" onchange="applyFilters()"><span>Cámaras Web</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Enfriamiento" onchange="applyFilters()"><span>Enfriamiento</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Fuentes de Poder" onchange="applyFilters()"><span>Fuentes de Poder</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Gabinetes" onchange="applyFilters()"><span>Gabinetes</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Headset" onchange="applyFilters()"><span>Headset</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Impresoras" onchange="applyFilters()"><span>Impresoras</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Laptop" onchange="applyFilters()"><span>Laptop</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Memorias RAM" onchange="applyFilters()"><span>Memorias RAM</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Micrófonos" onchange="applyFilters()"><span>Micrófonos</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="MiniPC" onchange="applyFilters()"><span>MiniPC</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Monitores" onchange="applyFilters()"><span>Monitores</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Mouse" onchange="applyFilters()"><span>Mouse</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Mousepad" onchange="applyFilters()"><span>Mousepad</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="PC Gaming" onchange="applyFilters()"><span>PC Gaming</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Parlantes" onchange="applyFilters()"><span>Parlantes</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Procesadores" onchange="applyFilters()"><span>Procesadores</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Reguladores de Voltaje y UPS" onchange="applyFilters()"><span>Reguladores de Voltaje y UPS</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Resmas" onchange="applyFilters()"><span>Resmas</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Routers" onchange="applyFilters()"><span>Routers</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Sillas" onchange="applyFilters()"><span>Sillas</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Switches" onchange="applyFilters()"><span>Switches</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Tablets" onchange="applyFilters()"><span>Tablets</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Tarjetas Madre" onchange="applyFilters()"><span>Tarjetas Madre</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Tarjetas de Video" onchange="applyFilters()"><span>Tarjetas de Video</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Teclados" onchange="applyFilters()"><span>Teclados</span></label>
+        <label class="filter-check"><input type="checkbox" class="cat-cb" value="Tintas" onchange="applyFilters()"><span>Tintas</span></label>
         
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Periférico</div>
-          <div class="product-name">Teclado Mecánico Gaming</div>
-          <div class="product-price">₡35,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Periférico</div>
-          <div class="product-name">Mouse Inalámbrico</div>
-          <div class="product-price">₡18,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Periférico</div>
-          <div class="product-name">Headset Gamer USB</div>
-          <div class="product-price">₡32,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Almacenamiento</div>
-          <div class="product-name">SSD NVMe 500GB</div>
-          <div class="product-price">₡42,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Almacenamiento</div>
-          <div class="product-name">Disco Duro Externo 1TB</div>
-          <div class="product-price">₡55,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Almacenamiento</div>
-          <div class="product-name">Memoria USB 64GB</div>
-          <div class="product-price">₡8,500</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Memoria RAM</div>
-          <div class="product-name">RAM DDR4 8GB 3200MHz</div>
-          <div class="product-price">₡28,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Memoria RAM</div>
-          <div class="product-name">RAM DDR4 16GB Kit</div>
-          <div class="product-price">₡52,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Componente</div>
-          <div class="product-name">Pasta Térmica Profesional</div>
-          <div class="product-price">₡4,500</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Repuesto</div>
-          <div class="product-name">Batería Laptop Universal</div>
-          <div class="product-price">Desde ₡25,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Repuesto</div>
-          <div class="product-name">Cargador Laptop</div>
-          <div class="product-price">Desde ₡20,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
-      <div class="product-card">
-        <div class="product-img"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div>
-        <div class="product-info">
-          <div class="product-cat">Accesorio</div>
-          <div class="product-name">Hub USB-C 7 en 1</div>
-          <div class="product-price">₡22,000</div>
-        </div>
-        <div class="product-actions"><button class="btn-consult">Consultar disponibilidad</button></div>
-      </div>
       </div>
     </div>
-  </div>
-</section>
 
-<script>
-  // Category filter
-  const links = document.querySelectorAll('.cat-link');
-  const cards = document.querySelectorAll('.product-card');
-  links.forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      links.forEach(l => l.style.background = '');
-      link.style.background = 'rgba(21,101,192,0.07)';
-      link.style.color = 'var(--blue)';
-      const cat = link.dataset.cat;
-      let count = 0;
-      cards.forEach(card => {
-        const c = card.querySelector('.product-cat').textContent;
-        const show = cat === 'all' || c === cat;
-        card.style.display = show ? '' : 'none';
-        if (show) count++;
-      });
-      document.getElementById('results-count').textContent = `Mostrando ${count} producto${count !== 1 ? 's' : ''}`;
-    });
-  });
-</script>
+    <!-- Brand filter -->
+    <div class="filter-box">
+      <div class="filter-box-head" onclick="toggleBox('brand-filter-body')">
+        <h4>Marca</h4>
+        <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><path d="M1 1l4 4 4-4"/></svg>
+      </div>
+      <div class="filter-box-body" id="brand-filter-body">
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="AMD" onchange="applyFilters()"><span>AMD</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="AOC" onchange="applyFilters()"><span>AOC</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="APC" onchange="applyFilters()"><span>APC</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="ASUS" onchange="applyFilters()"><span>ASUS</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Acer" onchange="applyFilters()"><span>Acer</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="AeroCool" onchange="applyFilters()"><span>AeroCool</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Anker" onchange="applyFilters()"><span>Anker</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="BenQ" onchange="applyFilters()"><span>BenQ</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Corsair Memory" onchange="applyFilters()"><span>Corsair Memory</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Cougar" onchange="applyFilters()"><span>Cougar</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Epson" onchange="applyFilters()"><span>Epson</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="HP" onchange="applyFilters()"><span>HP</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="HyperX" onchange="applyFilters()"><span>HyperX</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Intel" onchange="applyFilters()"><span>Intel</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Kingston" onchange="applyFilters()"><span>Kingston</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Klip Xtreme" onchange="applyFilters()"><span>Klip Xtreme</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="LG" onchange="applyFilters()"><span>LG</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Lenovo" onchange="applyFilters()"><span>Lenovo</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Logitech" onchange="applyFilters()"><span>Logitech</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="MSI" onchange="applyFilters()"><span>MSI</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Razer" onchange="applyFilters()"><span>Razer</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Samsung" onchange="applyFilters()"><span>Samsung</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Starlink" onchange="applyFilters()"><span>Starlink</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="TP-Link" onchange="applyFilters()"><span>TP-Link</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Thermaltake" onchange="applyFilters()"><span>Thermaltake</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="XBOX" onchange="applyFilters()"><span>XBOX</span></label>
+        <label class="filter-check"><input type="checkbox" class="brand-cb" value="Xiaomi" onchange="applyFilters()"><span>Xiaomi</span></label>
+        
+      </div>
+    </div>
+
+    <!-- Price filter -->
+    <div class="filter-box">
+      <div class="filter-box-head" onclick="toggleBox('price-filter-body')">
+        <h4>Precio máximo</h4>
+        <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><path d="M1 1l4 4 4-4"/></svg>
+      </div>
+      <div class="filter-box-body" id="price-filter-body" style="max-height:none;">
+        <div class="price-range-vals">
+          <span>₡0</span>
+          <span id="price-val">—</span>
+        </div>
+        <input type="range" id="price-range" min="0" max="850000" step="5000" oninput="applyFilters()" />
+        <div style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;">
+          Máx: <span id="price-max-label">—</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <div class="t-main">
+
+    <!-- Toolbar -->
+    <div class="t-toolbar">
+      <span class="t-results" id="results-count">Cargando...</span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <select class="perpage-select" id="perpage-select" onchange="applyFilters()">
+          <option value="30">30 por página</option>
+          <option value="60">60 por página</option>
+          <option value="120">120 por página</option>
+          <option value="0">Todos</option>
+        </select>
+        <select class="t-sort" id="sort-select" onchange="applyFilters()">
+          <option value="default">Ordenar: Relevancia</option>
+          <option value="price_asc">Precio: menor a mayor</option>
+          <option value="price_desc">Precio: mayor a menor</option>
+          <option value="name_asc">Nombre: A–Z</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Vista cuadrícula"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h7v7H3zm0 11h7v7H3zm11-11h7v7h-7zm0 11h7v7h-7z"/></svg></button>
+          <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter chips -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Products grid -->
+    <div class="products-grid" id="products-grid"></div>
+
+  </div>
+</div>
+</div>
 
 
 <footer>
@@ -287,5 +774,361 @@
   });
 </script>
 
+
+<script>
+  // ── CART STATE ─────────────────────────────────────────────────
+  var cart = JSON.parse(localStorage.getItem('zafiro_cart') || '[]');
+
+  function saveCart() {
+    localStorage.setItem('zafiro_cart', JSON.stringify(cart));
+    updateCartUI();
+  }
+
+  function addToCart(id, name, brand, price) {
+    var existing = cart.find(function(i) { return i.id === id; });
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({ id: id, name: name, brand: brand, price: price, qty: 1 });
+    }
+    saveCart();
+
+    // Visual feedback on button
+    var btn = document.querySelector('[data-cart-id="' + id + '"]');
+    if (btn) {
+      btn.classList.add('added');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><path d="M4.5 12.75l6 6 9-13.5"/></svg> Agregado';
+      setTimeout(function() {
+        btn.classList.remove('added');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg> Agregar';
+      }, 1500);
+    }
+    openCart();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(function(i) { return i.id !== id; });
+    saveCart();
+  }
+
+  function changeQty(id, delta) {
+    var item = cart.find(function(i) { return i.id === id; });
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) removeFromCart(id);
+    else saveCart();
+  }
+
+  function clearCart() {
+    cart = [];
+    saveCart();
+  }
+
+  function updateCartUI() {
+    var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+    var totalItems = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+
+    // Badge
+    var badge = document.getElementById('cart-badge');
+    if (badge) {
+      badge.textContent = totalItems;
+      badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
+    // Items
+    var itemsEl = document.getElementById('cart-items');
+    var footerEl = document.getElementById('cart-footer');
+    var totalEl = document.getElementById('cart-total');
+    if (!itemsEl) return;
+
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="width:56px;height:56px;color:#c8d4e0;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg><p>Tu carrito está vacío.</p><p style="font-size:0.82rem;margin-top:4px;">Explorá la tienda y agregá productos.</p></div>';
+      if (footerEl) footerEl.style.display = 'none';
+    } else {
+      itemsEl.innerHTML = cart.map(function(item) {
+        return '<div class="cart-item">' +
+          '<div class="cart-item-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div>' +
+          '<div class="cart-item-info">' +
+            '<div class="cart-item-name" title="' + item.name + '">' + item.name + '</div>' +
+            '<div class="cart-item-brand">' + item.brand + '</div>' +
+            '<div class="cart-item-price">₡' + (item.price * item.qty).toLocaleString('es-CR') + '</div>' +
+            '<div class="cart-item-controls">' +
+              '<button class="qty-btn" onclick="changeQty(' + item.id + ', -1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><path d="M5 12h14"/></svg></button>' +
+              '<span class="qty-display">' + item.qty + '</span>' +
+              '<button class="qty-btn" onclick="changeQty(' + item.id + ', 1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><path d="M12 5v14M5 12h14"/></svg></button>' +
+            '</div>' +
+          '</div>' +
+          '<button class="cart-item-remove" onclick="removeFromCart(' + item.id + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button>' +
+        '</div>';
+      }).join('');
+      if (footerEl) {
+        footerEl.style.display = 'block';
+        totalEl.textContent = '₡' + total.toLocaleString('es-CR');
+      }
+    }
+  }
+
+  function toggleCart() {
+    var drawer = document.getElementById('cart-drawer');
+    var overlay = document.getElementById('cart-overlay');
+    var isOpen = drawer.classList.contains('open');
+    drawer.classList.toggle('open', !isOpen);
+    overlay.classList.toggle('open', !isOpen);
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+  }
+
+  function openCart() {
+    var drawer = document.getElementById('cart-drawer');
+    var overlay = document.getElementById('cart-overlay');
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function checkoutWhatsApp() {
+    if (cart.length === 0) return;
+    var lines = cart.map(function(i) {
+      return '• ' + i.name + ' x' + i.qty + ' — ₡' + (i.price * i.qty).toLocaleString('es-CR');
+    });
+    var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+    var msg = 'Hola, me gustaría hacer el siguiente pedido:\n\n' +
+              lines.join('\n') +
+              '\n\n*Total estimado: ₡' + total.toLocaleString('es-CR') + '*' +
+              '\n\n¿Podría confirmar disponibilidad y precio final?';
+    window.open('https://wa.me/50686158400?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  // Init on load
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCartUI();
+  });
+</script>
+
+</body>
+</html>
+
+<script>
+  const PRODUCTS = [
+  {id:1, name:'Laptop ASUS VivoBook 15', cat:'Laptop', brand:'ASUS', price:450000, avail:true},
+  {id:2, name:'PC Gaming MSI Aegis', cat:'PC Gaming', brand:'MSI', price:850000, avail:true},
+  {id:3, name:'MiniPC Intel NUC', cat:'MiniPC', brand:'Intel', price:320000, avail:true},
+  {id:4, name:'All-In-One HP 24', cat:'All-In-One', brand:'HP', price:580000, avail:false},
+  {id:5, name:'Laptop Lenovo IdeaPad 3', cat:'Laptop', brand:'Lenovo', price:380000, avail:true},
+  {id:6, name:'Laptop Acer Aspire 5', cat:'Laptop', brand:'Acer', price:420000, avail:true},
+  {id:7, name:'Procesador AMD Ryzen 5 7600', cat:'Procesadores', brand:'AMD', price:185000, avail:true},
+  {id:8, name:'Tarjeta de Video RTX 4060', cat:'Tarjetas de Video', brand:'MSI', price:420000, avail:true},
+  {id:9, name:'Memoria RAM Kingston 16GB DDR5', cat:'Memorias RAM', brand:'Kingston', price:65000, avail:true},
+  {id:10, name:'SSD NVMe Samsung 1TB', cat:'Almacenamiento', brand:'Samsung', price:75000, avail:true},
+  {id:11, name:'Tarjeta Madre ASUS B650M', cat:'Tarjetas Madre', brand:'ASUS', price:195000, avail:true},
+  {id:12, name:'Fuente de Poder Corsair 650W', cat:'Fuentes de Poder', brand:'Corsair Memory', price:85000, avail:true},
+  {id:13, name:'Cooler Thermaltake ARGB', cat:'Enfriamiento', brand:'Thermaltake', price:45000, avail:false},
+  {id:14, name:'Gabinete Aerocool Cylon', cat:'Gabinetes', brand:'AeroCool', price:55000, avail:true},
+  {id:15, name:'Procesador Intel Core i5-13400', cat:'Procesadores', brand:'Intel', price:195000, avail:true},
+  {id:16, name:'Teclado Mecánico HyperX Alloy', cat:'Teclados', brand:'HyperX', price:65000, avail:true},
+  {id:17, name:'Mouse Logitech G502 Hero', cat:'Mouse', brand:'Logitech', price:55000, avail:true},
+  {id:18, name:'Headset Razer BlackShark V2', cat:'Headset', brand:'Razer', price:75000, avail:true},
+  {id:19, name:'Mousepad Razer Gigantus XL', cat:'Mousepad', brand:'Razer', price:28000, avail:true},
+  {id:20, name:'Cámara Web Logitech C920', cat:'Cámaras Web', brand:'Logitech', price:85000, avail:false},
+  {id:21, name:'Silla Gamer Cougar', cat:'Sillas', brand:'Cougar', price:280000, avail:true},
+  {id:22, name:'Impresora Epson EcoTank L3250', cat:'Impresoras', brand:'Epson', price:145000, avail:true},
+  {id:23, name:'Control Xbox Inalámbrico', cat:'Controles', brand:'XBOX', price:55000, avail:true},
+  {id:24, name:'Parlantes Logitech Z207', cat:'Parlantes', brand:'Logitech', price:42000, avail:true},
+  {id:25, name:'Micrófono Blue Yeti Nano', cat:'Micrófonos', brand:'Anker', price:95000, avail:true},
+  {id:26, name:'Monitor LG 27" IPS 144Hz', cat:'Monitores', brand:'LG', price:285000, avail:true},
+  {id:27, name:'Monitor AOC 24" FHD', cat:'Monitores', brand:'AOC', price:175000, avail:true},
+  {id:28, name:'Monitor BenQ 27" 4K', cat:'Monitores', brand:'BenQ', price:480000, avail:false},
+  {id:29, name:'Soporte para Monitor Klip', cat:'Bases y Soportes', brand:'Klip Xtreme', price:22000, avail:true},
+  {id:30, name:'Samsung Galaxy A55', cat:'Celulares', brand:'Samsung', price:395000, avail:true},
+  {id:31, name:'Xiaomi Redmi Note 13', cat:'Celulares', brand:'Xiaomi', price:195000, avail:true},
+  {id:32, name:'Tablet Samsung Tab A9', cat:'Tablets', brand:'Samsung', price:285000, avail:true},
+  {id:33, name:'Cargador Anker 65W GaN', cat:'Cargadores', brand:'Anker', price:32000, avail:true},
+  {id:34, name:'Router TP-Link Archer AX23', cat:'Routers', brand:'TP-Link', price:65000, avail:true},
+  {id:35, name:'Switch TP-Link 8 Puertos', cat:'Switches', brand:'TP-Link', price:28000, avail:true},
+  {id:36, name:'Amplificador Wi-Fi TP-Link RE605', cat:'Amplificadores', brand:'TP-Link', price:35000, avail:true},
+  {id:37, name:'Starlink Kit Residencial', cat:'Routers', brand:'Starlink', price:650000, avail:false},
+  {id:38, name:'Tintas Epson 664 Pack x4', cat:'Tintas', brand:'Epson', price:22000, avail:true},
+  {id:39, name:'Resma Papel Bond A4 500 hojas', cat:'Resmas', brand:'HP', price:8500, avail:true},
+  {id:40, name:'UPS APC 600VA', cat:'Reguladores de Voltaje y UPS', brand:'APC', price:55000, avail:true},
+];
+
+  const MAX_PRICE = 850000;
+  var priceMax = MAX_PRICE;
+
+  function fmtPrice(n) {
+    return '₡' + n.toLocaleString('es-CR');
+  }
+
+  var currentView = 'grid';
+
+  function setView(v) {
+    currentView = v;
+    var grid = document.getElementById('products-grid');
+    grid.classList.toggle('list-view', v === 'list');
+    document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+    document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  }
+
+  function renderProducts(list) {
+    var grid = document.getElementById('products-grid');
+    var count = document.getElementById('results-count');
+    var perpage = parseInt(document.getElementById('perpage-select').value);
+    var shown = perpage === 0 ? list : list.slice(0, perpage);
+    var totalTxt = list.length !== shown.length ? ' (mostrando <strong>' + shown.length + '</strong> de <strong>' + list.length + '</strong>)' : '';
+    count.innerHTML = '<strong>' + list.length + '</strong> producto' + (list.length !== 1 ? 's' : '') + totalTxt;
+    if (shown.length === 0) {
+      grid.innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg><p>No se encontraron productos con los filtros seleccionados.</p><p style="margin-top:8px;font-size:0.85rem;">Intentá con otros criterios.</p></div>';
+      return;
+    }
+    grid.innerHTML = shown.map(p => `
+      <div class="product-card">
+        <div class="product-img">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
+        </div>
+        <div class="product-info">
+          <div class="product-cat">${p.cat}</div>
+          <div class="product-brand">${p.brand}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">${fmtPrice(p.price)}</div>
+          <div class="product-avail ${p.avail ? 'avail-yes' : 'avail-no'}">${p.avail ? '✓ En stock' : '✗ Sin stock'}</div>
+        </div>
+        <div class="product-actions">
+          <button class="btn-add-cart" data-cart-id="${p.id}" onclick="addToCart(${p.id}, '${p.name}', '${p.brand}', ${p.price})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+            Agregar
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  function getActiveFilters() {
+    var cats   = Array.from(document.querySelectorAll('.cat-cb:checked')).map(cb => cb.value);
+    var brands = Array.from(document.querySelectorAll('.brand-cb:checked')).map(cb => cb.value);
+    var query  = document.getElementById('search-input').value.trim().toLowerCase();
+    var price  = parseInt(document.getElementById('price-range').value);
+    return { cats, brands, query, price };
+  }
+
+  function applyFilters() {
+    var f = getActiveFilters();
+    var sort = document.getElementById('sort-select').value;
+    var perpage = document.getElementById('perpage-select').value;
+
+    var list = PRODUCTS.filter(p => {
+      if (f.cats.length   && !f.cats.includes(p.cat))    return false;
+      if (f.brands.length && !f.brands.includes(p.brand)) return false;
+      if (p.price > f.price) return false;
+      if (f.query && !p.name.toLowerCase().includes(f.query) && !p.brand.toLowerCase().includes(f.query) && !p.cat.toLowerCase().includes(f.query)) return false;
+      return true;
+    });
+
+    if (sort === 'price_asc')  list.sort((a,b) => a.price - b.price);
+    if (sort === 'price_desc') list.sort((a,b) => b.price - a.price);
+    if (sort === 'name_asc')   list.sort((a,b) => a.name.localeCompare(b.name));
+
+    // Update price label
+    document.getElementById('price-val').textContent = fmtPrice(f.price);
+
+    // Active filter chips
+    renderChips(f);
+
+    // Clear button visibility
+    var hasFilt = f.cats.length || f.brands.length || f.query || f.price < MAX_PRICE;
+    document.getElementById('clear-btn').classList.toggle('visible', !!hasFilt);
+
+    renderProducts(list);
+  }
+
+  function renderChips(f) {
+    var wrap = document.getElementById('active-filters');
+    var chips = '';
+    f.cats.forEach(c => chips += `<span class="af-chip" onclick="removeCatFilter('${c}')">${c} ✕</span>`);
+    f.brands.forEach(b => chips += `<span class="af-chip" onclick="removeBrandFilter('${b}')">${b} ✕</span>`);
+    if (f.query) chips += `<span class="af-chip" onclick="clearSearch()">"${f.query}" ✕</span>`;
+    if (f.price < MAX_PRICE) chips += `<span class="af-chip" onclick="clearPrice()">Hasta ${fmtPrice(f.price)} ✕</span>`;
+    wrap.innerHTML = chips;
+  }
+
+  function removeCatFilter(val) {
+    document.querySelectorAll('.cat-cb').forEach(cb => { if (cb.value === val) cb.checked = false; });
+    applyFilters();
+  }
+  function removeBrandFilter(val) {
+    document.querySelectorAll('.brand-cb').forEach(cb => { if (cb.value === val) cb.checked = false; });
+    applyFilters();
+  }
+  function clearSearch() {
+    document.getElementById('search-input').value = '';
+    applyFilters();
+  }
+  function clearPrice() {
+    document.getElementById('price-range').value = MAX_PRICE;
+    applyFilters();
+  }
+  function clearAllFilters() {
+    document.querySelectorAll('.cat-cb, .brand-cb').forEach(cb => cb.checked = false);
+    document.getElementById('search-input').value = '';
+    document.getElementById('price-range').value = MAX_PRICE;
+    applyFilters();
+  }
+
+  function toggleBox(id) {
+    var body = document.getElementById(id);
+    var head = body.previousElementSibling;
+    body.classList.toggle('collapsed');
+    head.classList.toggle('collapsed');
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('price-range').value = MAX_PRICE;
+    document.getElementById('price-max-label').textContent = fmtPrice(MAX_PRICE);
+    applyFilters();
+
+    // Live search
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+  });
+</script>
+
+<script>
+  var _catActiveIdx = null;
+
+  function toggleDrop(idx, btn) {
+    var overlay = document.getElementById('cat-overlay');
+    var bar = document.getElementById('cat-bar');
+
+    if (_catActiveIdx === idx) {
+      _closeCat();
+      return;
+    }
+    _closeCat();
+    _catActiveIdx = idx;
+    var drop = document.getElementById('drop-' + idx);
+    drop.style.top = bar.getBoundingClientRect().bottom + 'px';
+    drop.classList.add('open');
+    btn.classList.add('active');
+    overlay.classList.add('open');
+  }
+
+  function _closeCat() {
+    if (_catActiveIdx !== null) {
+      document.getElementById('drop-' + _catActiveIdx).classList.remove('open');
+      document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
+      _catActiveIdx = null;
+    }
+    document.getElementById('cat-overlay').classList.remove('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('cat-overlay').addEventListener('click', _closeCat);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') _closeCat(); });
+    document.addEventListener('scroll', function() {
+      if (_catActiveIdx !== null) {
+        var bar = document.getElementById('cat-bar');
+        document.getElementById('drop-' + _catActiveIdx).style.top =
+          bar.getBoundingClientRect().bottom + 'px';
+      }
+    }, { passive: true });
+  });
+</script>
 </body>
 </html>
