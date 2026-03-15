@@ -1471,12 +1471,15 @@
     var params = new URLSearchParams(window.location.search);
     var catParam = params.get('cat');
     if (catParam) {
-      var cb = document.querySelector('.cat-cb[value="' + catParam + '"]');
-      if (cb) {
-        cb.checked = true;
-        // Scroll sidebar to show the checked item
-        cb.closest('.filter-box-body').scrollTop = cb.closest('label').offsetTop - 20;
-      }
+      var allCatCbs = document.querySelectorAll('.cat-cb');
+      allCatCbs.forEach(function(cb) {
+        if (cb.value === catParam) {
+          cb.checked = true;
+          // Scroll sidebar to make checked item visible
+          var body = document.getElementById('cat-filter-body');
+          if (body) body.scrollTop = cb.parentElement.offsetTop - 10;
+        }
+      });
     }
 
     applyFilters();
